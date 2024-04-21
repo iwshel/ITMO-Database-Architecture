@@ -1,4 +1,4 @@
-INSERT INTO users (username, email, password_hash, online_status, registration_date)
+INSERT INTO  users (username, email, password_hash, online_status, registration_date)
 SELECT
         'user' || generate_series,
         'user' || generate_series || '@example.com',
@@ -12,7 +12,7 @@ INSERT INTO servers (server_name, owner_id, creation_date)
 SELECT
         'server' || generate_series,
         (SELECT user_id FROM users ORDER BY random() LIMIT 1),
-    NOW() - (random() * INTERVAL '365 days')
+        NOW() - (random() * INTERVAL '365 days')
 FROM
     generate_series(1, 1000000);
 
@@ -21,7 +21,7 @@ INSERT INTO channels (channel_name, server_id, channel_type)
 SELECT
         'channel' || generate_series,
         (SELECT server_id FROM servers ORDER BY random() LIMIT 1),
-    CASE WHEN random() < 0.5 THEN 'text_channel' ELSE 'voice_channel' END
+        CASE WHEN random() < 0.5 THEN 'text_channel' ELSE 'voice_channel' END
 FROM
     generate_series(1, 1000000);
 
@@ -73,8 +73,8 @@ SELECT
         'emoji' || generate_series,
         'https://example.com/emoji/' || generate_series || '.png',
         (SELECT server_id FROM servers ORDER BY random() LIMIT 1),
-    (SELECT user_id FROM users ORDER BY random() LIMIT 1),
-    NOW() - (random() * INTERVAL '365 days')
+        (SELECT user_id FROM users ORDER BY random() LIMIT 1),
+        NOW() - (random() * INTERVAL '365 days')
 FROM
     generate_series(1, 10000);
 
