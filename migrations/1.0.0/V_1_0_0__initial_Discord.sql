@@ -7,12 +7,30 @@ CREATE TABLE IF NOT EXISTS users (
     registration_date TIMESTAMP
     );
 
+INSERT INTO  users (username, email, password_hash, online_status, registration_date)
+SELECT
+    'user' || generate_series,
+    'user' || generate_series || '@example.com',
+    md5(random()::text),
+    random() < 0.5,
+    NOW() - (random() * INTERVAL '365 days')
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
+
 CREATE TABLE IF NOT EXISTS  servers (
     server_id SERIAL PRIMARY KEY,
     server_name VARCHAR NOT NULL,
     owner_id INTEGER NOT NULL REFERENCES users(user_id),
     creation_date TIMESTAMP NOT NULL
     );
+
+INSERT INTO servers (server_name, owner_id, creation_date)
+SELECT
+        'server' || generate_series,
+        FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+        NOW() - (random() * INTERVAL '365 days')
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
 
 CREATE TABLE IF NOT EXISTS  channels (
     channel_id SERIAL PRIMARY KEY,
@@ -21,11 +39,26 @@ CREATE TABLE IF NOT EXISTS  channels (
     channel_type VARCHAR NOT NULL
     );
 
+INSERT INTO channels (channel_name, server_id, channel_type)
+SELECT
+        'channel' || generate_series,
+        FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+        CASE WHEN random() < 0.5 THEN 'text_channel' ELSE 'voice_channel' END
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
+
 CREATE TABLE IF NOT EXISTS  roles (
      role_id SERIAL PRIMARY KEY,
      role_name VARCHAR NOT NULL,
      server_id INTEGER NOT NULL REFERENCES servers(server_id)
     );
+
+INSERT INTO roles (role_name, server_id)
+SELECT
+        'role' || generate_series,
+        FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
 
 CREATE TABLE IF NOT EXISTS  permissions (
     permission_id SERIAL PRIMARY KEY,
@@ -38,6 +71,18 @@ CREATE TABLE IF NOT EXISTS  permissions (
     can_ban_users BOOLEAN
     );
 
+INSERT INTO permissions (role_id, channel_id, can_send_messages, can_delete_messages, can_edit_messages, can_create_roles, can_ban_users)
+SELECT
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    random() < 0.5,
+    random() < 0.5,
+    random() < 0.5,
+    random() < 0.5,
+    random() < 0.5
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
+
 CREATE TABLE IF NOT EXISTS  invitations (
     invitation_id SERIAL PRIMARY KEY,
     server_id INTEGER NOT NULL REFERENCES servers(server_id),
@@ -45,6 +90,15 @@ CREATE TABLE IF NOT EXISTS  invitations (
     invited_user_id INTEGER NOT NULL REFERENCES users(user_id),
     invitation_date TIMESTAMP
     );
+
+INSERT INTO invitations (server_id, inviter_id, invited_user_id, invitation_date)
+SELECT
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    NOW() - (random() * INTERVAL '365 days')
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
 
 CREATE TABLE IF NOT EXISTS  moderation_logs (
     log_id SERIAL PRIMARY KEY,
@@ -55,6 +109,16 @@ CREATE TABLE IF NOT EXISTS  moderation_logs (
     timestamp TIMESTAMP
     );
 
+INSERT INTO moderation_logs (moderator_id, user_id, action, reason, timestamp)
+SELECT
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    'action' || generate_series,
+    'reason' || generate_series,
+    NOW() - (random() * INTERVAL '365 days')
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
+
 CREATE TABLE IF NOT EXISTS  emojis (
     emoji_id SERIAL PRIMARY KEY,
     emoji_name VARCHAR NOT NULL,
@@ -64,6 +128,16 @@ CREATE TABLE IF NOT EXISTS  emojis (
     creation_date TIMESTAMP
     );
 
+INSERT INTO emojis (emoji_name, emoji_image, server_id, creator_id, creation_date)
+SELECT
+        'emoji' || generate_series,
+        'https://example.com/emoji/' || generate_series || '.png',
+        FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+        FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+        NOW() - (random() * INTERVAL '365 days')
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
+
 CREATE TABLE IF NOT EXISTS  user_roles (
     user_role_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(user_id),
@@ -71,6 +145,13 @@ CREATE TABLE IF NOT EXISTS  user_roles (
     server_id INTEGER NOT NULL REFERENCES servers(server_id)
     );
 
+INSERT INTO user_roles (user_id, role_id, server_id)
+SELECT
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
 
 CREATE TABLE IF NOT EXISTS  user_settings (
     settings_id SERIAL PRIMARY KEY,
@@ -82,6 +163,17 @@ CREATE TABLE IF NOT EXISTS  user_settings (
     language VARCHAR
     );
 
+INSERT INTO user_settings (user_id, theme_preference, notification_settings, privacy_settings, other_preferences, language)
+SELECT
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    CASE WHEN random() < 0.5 THEN 'Light' ELSE 'Dark' END,
+    'notification_setting' || generate_series,
+    'privacy_setting' || generate_series,
+    'other_preference' || generate_series,
+    'English'
+FROM
+    generate_series(1, ${FILLING_AMOUNT});
+
 CREATE TABLE IF NOT EXISTS  bans (
     ban_id SERIAL PRIMARY KEY,
     banned_user_id INTEGER NOT NULL REFERENCES users(user_id),
@@ -90,3 +182,13 @@ CREATE TABLE IF NOT EXISTS  bans (
     reason VARCHAR,
     timestamp TIMESTAMP NOT NULL
     );
+
+INSERT INTO bans (banned_user_id, banned_by_user_id, server_id, reason, timestamp)
+SELECT
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    FLOOR(RANDOM() * ${FILLING_AMOUNT}) + 1,
+    'reason' || generate_series,
+    NOW() - (random() * INTERVAL '365 days')
+FROM
+    generate_series(1, ${FILLING_AMOUNT});

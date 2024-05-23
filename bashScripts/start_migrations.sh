@@ -12,17 +12,18 @@ fi
 version=$DB_VERSION
 
 if [ -z "$version" ]; then
-  version=$(find /migrations -type d | sort | tail -n1 | awk -F '/' '{ print $3 }')
+  versions_to_run=$(find /migrations -mindepth 1 -maxdepth 1 -type d | sort | awk -F '/' '{ print $3 }')
+else
+  versions_to_run=$(find /migrations -mindepth 1 -maxdepth 1 -type d | sort | awk -F '/' -v v="$version" '{ print $3; if ($3 == v) exit }')
 fi
 
-# shellcheck disable=SC1073
-# shellcheck disable=SC2044
-for script in $(find /migrations/$version/ -name "*.sql" -type f); do
-  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f $script
-done
-
-for data in data/*.sql; do
-    psql -U  "$DB_USERNAME" -d "$POSTGRES_DB" -f "$data"
+for v in $versions_to_run; do
+  for script in $(find migrations/$v/ -name "*.sql" -type f); do
+    TEMP_SQL_FILE=$(mktemp)
+    sed "s/\${FILLING_AMOUNT}/$FILLING_AMOUNT/g" $script > "$TEMP_SQL_FILE"
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$TEMP_SQL_FILE"
+    rm "$TEMP_SQL_FILE"
+  done
 done
 
 if ! execute_sql "\\du" | grep -qw "reader"; then
@@ -33,7 +34,6 @@ if ! execute_sql "\\du" | grep -qw "writer"; then
     execute_sql "CREATE USER writer WITH ENCRYPTED PASSWORD 'writerpassword';"
 fi
 
-# Create analytic role if it does not exist
 if ! execute_sql "\\du" | grep -qw "analytic"; then
     execute_sql "CREATE ROLE analytic;"
 fi

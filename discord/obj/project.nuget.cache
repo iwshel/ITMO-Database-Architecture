@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "NXvMGq7vzlt7/ktzqHZilaoXysCirWjp9ILi5mJwCfPZONFADhRDVLTbXptN59wGn9Ukgp+wbGHPxzNI7TL8YA==",
+  "success": true,
+  "projectFilePath": "/Users/iwshel/Desktop/archdb/discord/discord.csproj",
+  "expectedPackageFiles": [
+    "/Users/iwshel/.nuget/packages/bogus/35.5.1/bogus.35.5.1.nupkg.sha512",
+    "/Users/iwshel/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/8.0.0/microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "/Users/iwshel/.nuget/packages/microsoft.extensions.logging.abstractions/8.0.0/microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "/Users/iwshel/.nuget/packages/npgsql/8.0.3/npgsql.8.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
